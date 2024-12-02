@@ -1,7 +1,6 @@
 use aoc_2024::day1::*;
 use criterion::{criterion_group, criterion_main, Criterion};
-use fxhash::FxBuildHasher;
-use std::{collections::HashMap, hint::black_box};
+use std::hint::black_box;
 
 fn benches(c: &mut Criterion) {
     bench_parsing(c);
@@ -11,13 +10,15 @@ fn benches(c: &mut Criterion) {
 }
 
 fn bench_all(c: &mut Criterion) {
-    c.bench_function("day1_all", |b| {
+    let mut all = c.benchmark_group("day1_all");
+    all.bench_function("day1_all", |b| {
         b.iter(|| {
             let (mut left, mut right, arr) = preparse_simd(REGULAR);
             part1_preparsed(black_box(&mut left), black_box(&mut right));
             part2_preparsed(black_box(left), black_box(arr));
         });
     });
+    all.finish();
 }
 
 #[allow(unused)]

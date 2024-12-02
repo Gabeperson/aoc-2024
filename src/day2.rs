@@ -14,12 +14,45 @@ pub fn parse(s: &str) -> Vec<Vec<u8>> {
     res
 }
 
+pub fn run(s: &str) -> (i32, i32) {
+    let v = parse_optimized(s);
+    (part1_preparsed(&v), part2_preparsed(&v))
+}
+
+pub fn parse_byte_integers_v2(input: &[u8], output: &mut [u8; 8]) -> (usize, usize) {
+    let mut i = 0;
+    let mut index = 0;
+
+    loop {
+        match input[i] {
+            b'\n' => break,
+            b' ' => {}
+            n @ b'0'..=b'9' => {
+                if i + 1 < input.len() && input[i + 1].is_ascii_digit() {
+                    let tens = (n - 48) * 10;
+                    let ones = input[i + 1];
+                    output[index] = tens + ones;
+
+                    i += 1;
+                } else {
+                    output[index] = n;
+                }
+                index += 1;
+            }
+            _ => unreachable!(),
+        }
+
+        i += 1;
+    }
+    (index, i + 1)
+}
+
 pub fn parse_optimized(s: &str) -> [([u8; 8], usize); 1000] {
     let mut res = [([0u8; 8], 0usize); 1000];
     let mut bytes = s.as_bytes();
     let mut buf = [0u8; 8];
     (0..1000).for_each(|i| {
-        let (len, processed_count) = parse_byte_integers(bytes, &mut buf);
+        let (len, processed_count) = parse_byte_integers_v2(bytes, &mut buf);
         bytes = &bytes[processed_count..];
         res[i] = (buf, len);
     });
@@ -36,7 +69,11 @@ pub fn part1_naive(s: &str) -> i32 {
 pub fn part1_optimized(s: &str) -> i32 {
     let v = parse_optimized(s);
 
-    v.into_iter()
+    part1_preparsed(&v)
+}
+
+pub fn part1_preparsed(v: &[([u8; 8], usize); 1000]) -> i32 {
+    v.iter()
         .filter(|(arr, len)| safe(&arr[..*len]).is_safe())
         .count() as i32
 }
@@ -65,7 +102,7 @@ fn safe(l: &[u8]) -> Safety {
 pub fn part2_naive(s: &str) -> i32 {
     let v = parse(s);
 
-    v.into_iter().enumerate().fold(0, |acc, (i, v)| {
+    v.into_iter().fold(0, |acc, v| {
         if safe(&v).is_safe() {
             return acc + 1;
         }
@@ -86,10 +123,12 @@ pub fn part2_naive(s: &str) -> i32 {
 
 pub fn part2_optimized(s: &str) -> i32 {
     let v = parse_optimized(s);
+    part2_preparsed(&v)
+}
 
+pub fn part2_preparsed(v: &[([u8; 8], usize); 1000]) -> i32 {
     v.iter()
-        .enumerate()
-        .filter(|(i, (arr, len))| {
+        .filter(|(arr, len)| {
             let index = match safe(&arr[..*len]) {
                 Safety::Safe => {
                     return true;
@@ -99,6 +138,11 @@ pub fn part2_optimized(s: &str) -> i32 {
             let mut arr1 = *arr;
             let mut arr2 = *arr;
             let mut arr3 = *arr;
+            // arr1[index..7].copy_from_slice(&arr[(index + 1)..=7]);
+            // arr2[(index + 1)..7].copy_from_slice(&arr[(index + 2)..=7]);
+            // if index != 0 {
+            //     arr3[(index - 1)..7].copy_from_slice(&arr[(index)..=7]);
+            // }
             for i in index..7 {
                 arr1[i] = arr1[i + 1];
             }

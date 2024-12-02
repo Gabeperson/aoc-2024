@@ -10,7 +10,6 @@ fn benches(c: &mut Criterion) {
     parsing.bench_function("parse_optimized", |b| {
         b.iter(|| parse_optimized(black_box(REGULAR)));
     });
-
     parsing.finish();
     let mut part1 = c.benchmark_group("day2_part1");
     part1.bench_function("day2_part1_naive", |b| {
@@ -34,6 +33,9 @@ fn benches(c: &mut Criterion) {
         b.iter(|| part2_optimized(black_box(REGULAR)))
     });
     part2.finish();
+    let mut all = c.benchmark_group("day2_all");
+    all.bench_function("day2_all", |b| b.iter(|| run(REGULAR)));
+    all.finish();
 }
 
 criterion_group!(day2_bench, benches);
