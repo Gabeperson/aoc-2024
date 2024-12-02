@@ -1,4 +1,3 @@
-use core::str;
 use fxhash::FxBuildHasher;
 use regex::Regex;
 use std::{
@@ -61,6 +60,47 @@ pub fn part1_optimized_manual_2_simd(s: &str) -> i32 {
         .zip(right)
         .map(|(a, b)| a.abs_diff(b))
         .sum::<u32>() as i32
+}
+
+pub fn preparse_simd(s: &str) -> ([i32; 1000], [i32; 1000], [i32; 90000]) {
+    fn parse_line_5l_simd(c: &[u8]) -> (i32, i32) {
+        use std::simd::{
+            num::{SimdInt, SimdUint},
+            Simd,
+        };
+        const DIGIT_WEIGHTS_A: Simd<i32, 8> = Simd::from_array([10000, 1000, 100, 10, 1, 0, 0, 0]);
+        const DIGIT_WEIGHTS_B: Simd<i32, 8> = Simd::from_array([0, 0, 0, 10000, 1000, 100, 10, 1]);
+        let a_arr = Simd::<u8, 8>::from_slice(c).cast();
+        let b_arr = Simd::<u8, 8>::from_slice(&c[5..13]).cast();
+        let a_digits = a_arr * DIGIT_WEIGHTS_A;
+        let b_digits = b_arr * DIGIT_WEIGHTS_B;
+        (
+            a_digits.reduce_sum() - 533328,
+            b_digits.reduce_sum() - 533328,
+        )
+    }
+    let mut left = [0; 1000];
+    let mut right = [0; 1000];
+    let mut arr = [0; 90000];
+    let mut count = 0;
+    s.as_bytes().chunks(14).for_each(|line| {
+        let (l, r) = parse_line_5l_simd(line);
+        left[count] = l;
+        right[count] = r;
+        arr[r as usize - 10000] += 1;
+        count += 1;
+    });
+    (left, right, arr)
+}
+
+pub fn part1_preparsed(v1: &mut [i32], v2: &mut [i32]) -> i32 {
+    v1.sort_unstable();
+    v2.sort_unstable();
+    v1.iter().zip(v2).map(|(a, b)| a.abs_diff(*b)).sum::<u32>() as i32
+}
+
+pub fn part2_preparsed(v: [i32; 1000], arr: [i32; 90000]) -> i32 {
+    v.iter().map(|a| a * arr[*a as usize - 10000]).sum()
 }
 
 pub fn part2_optimzied_withvec_preparsed(v1: &[i32], map: HashMap<i32, i32, FxBuildHasher>) -> i32 {
