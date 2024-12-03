@@ -10,7 +10,7 @@ fn benches(c: &mut Criterion) {
 
 fn bench_all(c: &mut Criterion) {
     let mut all = c.benchmark_group("day3_all");
-    all.bench_function("day3_all", |b| b.iter(|| run(REGULAR)));
+    all.bench_function("day3_all", |b| b.iter(|| run(black_box(REGULAR))));
     all.finish();
 }
 
@@ -21,6 +21,9 @@ fn bench_part1(c: &mut Criterion) {
     part1_group.bench_function("day3_part1_optimized", |b| {
         b.iter(|| part1_opt(black_box(REGULAR)))
     });
+    part1_group.bench_function("day3_part1_optimized_nomemchr", |b| {
+        b.iter(|| part1_opt_nomemchr(black_box(REGULAR)))
+    });
     part1_group.finish();
 }
 
@@ -29,6 +32,9 @@ fn bench_part2(c: &mut Criterion) {
     let mut part2_group = c.benchmark_group("day3_part2");
     part2_group.bench_function("day3_part2_optimized", |b| {
         b.iter(|| part2(black_box(REGULAR)))
+    });
+    part2_group.bench_function("day3_part2_optimized_nomemchr", |b| {
+        b.iter(|| part2_nomemchr(black_box(REGULAR)))
     });
     part2_group.finish();
 }

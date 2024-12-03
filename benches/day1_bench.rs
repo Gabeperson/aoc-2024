@@ -13,9 +13,7 @@ fn bench_all(c: &mut Criterion) {
     let mut all = c.benchmark_group("day1_all");
     all.bench_function("day1_all", |b| {
         b.iter(|| {
-            let (mut left, mut right, arr) = preparse_simd(REGULAR);
-            part1_preparsed(black_box(&mut left), black_box(&mut right));
-            part2_preparsed(black_box(left), black_box(arr));
+            run(black_box(REGULAR));
         });
     });
     all.finish();

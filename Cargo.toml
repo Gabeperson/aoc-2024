@@ -31,15 +31,18 @@ lto = true
 [dev-dependencies]
 criterion = { version = "0.5", features = ["html_reports"] }
 
-[[bench]]
-name = "day1_bench"
-harness = false
+# [[bench]]
+# name = "day1_bench"
+# harness = false
+
+# [[bench]]
+# name = "day2_bench"
+# harness = false
+
+# [[bench]]
+# name = "day3_bench"
+# harness = false
 
 [[bench]]
-name = "day2_bench"
+name = "all_bench"
 harness = false
-
-[[bench]]
-name = "day3_bench"
-harness = false
-

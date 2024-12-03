@@ -8,6 +8,13 @@ use std::{
 pub static SIMPLE: &str = include_str!("../inputs/day1_simple.txt");
 pub static REGULAR: &str = include_str!("../inputs/day1.txt");
 
+pub fn run(s: &str) -> (i32, i32) {
+    let (mut left, mut right, arr) = preparse_simd(s);
+    let a = part1_preparsed(&mut left, &mut right);
+    let b = part2_preparsed(left, arr);
+    (a, b)
+}
+
 pub fn part1(s: &str) -> i32 {
     let (left, right) = parse(s);
     left.iter().zip(right).map(|(a, b)| (a - b).abs()).sum()
