@@ -3,8 +3,8 @@ use criterion::{criterion_group, criterion_main, Criterion};
 use std::hint::black_box;
 
 fn benches(c: &mut Criterion) {
-    // bench_part1(c);
-    // bench_part2(c);
+    bench_part1(c);
+    bench_part2(c);
     bench_all(c);
 }
 

@@ -53,14 +53,6 @@ fn num_parse(s: &[u8]) -> Option<(i32, usize)> {
 fn next_mul<'a>(mut s: &'a [u8], mul_finder: &Finder<'_>) -> Option<(i32, &'a [u8])> {
     loop {
         let found = mul_finder.find(s)?;
-        if let Some(i) = s.get(found + 3).copied() {
-            if i != b'(' {
-                s = &s[found + 3..];
-                continue;
-            }
-        } else {
-            return None;
-        }
         s = &s[found + 4..];
         let num1 = if let Some((num, parsed)) = num_parse(s) {
             s = &s[parsed..];
@@ -95,15 +87,7 @@ fn next_mul<'a>(mut s: &'a [u8], mul_finder: &Finder<'_>) -> Option<(i32, &'a [u
 }
 fn next_mul_nomemchr(mut s: &str) -> Option<(i32, &str)> {
     loop {
-        let found = s.find("mul")?;
-        if let Some(i) = s.as_bytes().get(found + 3).copied() {
-            if i != b'(' {
-                s = &s[found + 3..];
-                continue;
-            }
-        } else {
-            return None;
-        }
+        let found = s.find("mul(")?;
         s = &s[found + 4..];
         let num1 = if let Some((num, parsed)) = num_parse(s.as_bytes()) {
             s = &s[parsed..];
@@ -138,7 +122,7 @@ fn next_mul_nomemchr(mut s: &str) -> Option<(i32, &str)> {
 }
 
 pub fn part1_opt(s: &str) -> i32 {
-    let mul_finder = Finder::new("mul");
+    let mul_finder = Finder::new("mul(");
     let mut input = s.as_bytes();
     let mut n = 0;
     while let Some((num, new_slice)) = next_mul(input, &mul_finder) {
@@ -158,38 +142,18 @@ pub fn part1_opt_nomemchr(s: &str) -> i32 {
     n
 }
 
-fn next_dont(mut s: &[u8], dont_finder: &Finder<'_>) -> Option<usize> {
-    loop {
-        let found = dont_finder.find(s)?;
-        if s[found + 3..].starts_with(b"'t()") {
-            return Some(found + 7);
-        }
-        s = &s[found + 7..];
-    }
-}
-
-fn next_do(mut s: &[u8], do_finder: &Finder<'_>) -> Option<usize> {
-    loop {
-        let found = do_finder.find(s)?;
-        if s[found + 3] == b')' {
-            return Some(found + 4);
-        }
-        s = &s[found + 4..];
-    }
-}
-
 pub fn part2(s: &str) -> i32 {
     let mut input = s.as_bytes();
-    let mul_finder = Finder::new("mul");
-    let do_finder = Finder::new("do(");
-    let dont_finder = Finder::new("don");
+    let mul_finder = Finder::new("mul(");
+    let do_finder = Finder::new("do()");
+    let dont_finder = Finder::new("don't()");
 
     let mut enabled = true;
     let mut num = 0;
 
     'outer: loop {
         if enabled {
-            if let Some(pos) = next_dont(input, &dont_finder) {
+            if let Some(pos) = dont_finder.find(input) {
                 let ptr = input[pos..].as_ptr();
                 let after_dont = &input[pos..];
                 while let Some((n, new_slice)) = next_mul(input, &mul_finder) {
@@ -208,7 +172,7 @@ pub fn part2(s: &str) -> i32 {
                 }
                 return num;
             }
-        } else if let Some(pos) = next_do(input, &do_finder) {
+        } else if let Some(pos) = do_finder.find(input) {
             input = &input[pos..];
             enabled = true;
         } else {
@@ -219,15 +183,15 @@ pub fn part2(s: &str) -> i32 {
 
 pub fn part2_nomemchr(s: &str) -> i32 {
     let mut input = s;
-    let do_finder = Finder::new("do(");
-    let dont_finder = Finder::new("don");
+    let do_finder = Finder::new("do()");
+    let dont_finder = Finder::new("don't()");
 
     let mut enabled = true;
     let mut num = 0;
 
     'outer: loop {
         if enabled {
-            if let Some(pos) = next_dont(input.as_bytes(), &dont_finder) {
+            if let Some(pos) = dont_finder.find(input.as_bytes()) {
                 let ptr = input[pos..].as_ptr();
                 let after_dont = &input[pos..];
                 while let Some((n, new_slice)) = next_mul_nomemchr(input) {
@@ -246,7 +210,7 @@ pub fn part2_nomemchr(s: &str) -> i32 {
                 }
                 return num;
             }
-        } else if let Some(pos) = next_do(input.as_bytes(), &do_finder) {
+        } else if let Some(pos) = do_finder.find(input.as_bytes()) {
             input = &input[pos..];
             enabled = true;
         } else {
