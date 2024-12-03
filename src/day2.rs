@@ -138,11 +138,6 @@ pub fn part2_preparsed(v: &[([u8; 8], usize); 1000]) -> i32 {
             let mut arr1 = *arr;
             let mut arr2 = *arr;
             let mut arr3 = *arr;
-            // arr1[index..7].copy_from_slice(&arr[(index + 1)..=7]);
-            // arr2[(index + 1)..7].copy_from_slice(&arr[(index + 2)..=7]);
-            // if index != 0 {
-            //     arr3[(index - 1)..7].copy_from_slice(&arr[(index)..=7]);
-            // }
             for i in index..7 {
                 arr1[i] = arr1[i + 1];
             }

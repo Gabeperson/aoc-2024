@@ -8,6 +8,7 @@ fxhash = "0.2.1"
 # flume = "0.11.1"
 # glam = "0.29.2"
 itertools = "0.13.0"
+memchr = "2.7.4"
 # rayon = "1.10.0"
 # num = "0.4.3"
 # pathfinding = "4.11.0"
@@ -34,7 +35,11 @@ criterion = { version = "0.5", features = ["html_reports"] }
 # name = "day1_bench"
 # harness = false
 
+# [[bench]]
+# name = "day2_bench"
+# harness = false
+
 [[bench]]
-name = "day2_bench"
+name = "day3_bench"
 harness = false
 
